@@ -1,8 +1,10 @@
 import 'dart:math' as math;
 
+import 'package:after_layout/after_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compass/flutter_compass.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:permission_handler/permission_handler.dart' as ph;
+import 'package:location/location.dart' as lc;
 
 void main() => runApp(MyApp());
 
@@ -15,7 +17,7 @@ class MyApp extends StatefulWidget {
   _MyAppState createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with AfterLayoutMixin<MyApp> {
   bool _hasPermissions = false;
 
 //coordinates of lysaya gora 22
@@ -146,7 +148,7 @@ class _MyAppState extends State<MyApp> {
           ElevatedButton(
             child: Text('Request Permissions'),
             onPressed: () {
-              Permission.locationWhenInUse.request().then((ignored) {
+              ph.Permission.locationWhenInUse.request().then((ignored) {
                 _fetchPermissionStatus();
               });
             },
@@ -155,7 +157,7 @@ class _MyAppState extends State<MyApp> {
           ElevatedButton(
             child: Text('Open App Settings'),
             onPressed: () {
-              openAppSettings().then((opened) {
+              ph.openAppSettings().then((opened) {
                 //
               });
             },
@@ -166,10 +168,39 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _fetchPermissionStatus() {
-    Permission.locationWhenInUse.status.then((status) {
+    ph.Permission.locationWhenInUse.status.then((status) {
       if (mounted) {
-        setState(() => _hasPermissions = status == PermissionStatus.granted);
+        setState(() => _hasPermissions = status == ph.PermissionStatus.granted);
       }
     });
+  }
+
+  @override
+  void afterFirstLayout(BuildContext context) async {
+    // TODO: implement afterFirstLayout
+    lc.Location location = new lc.Location();
+
+    bool _serviceEnabled;
+    lc.PermissionStatus _permissionGranted;
+    lc.LocationData _locationData;
+
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == lc.PermissionStatus.denied) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != lc.PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    _locationData = await location.getLocation();
+    print(_locationData);
   }
 }
