@@ -180,11 +180,11 @@ class _MyAppState extends State<MyApp> with AfterLayoutMixin<MyApp> {
     // TODO: implement afterFirstLayout
     lc.Location location = new lc.Location();
 
-    bool _serviceEnabled;
-    lc.PermissionStatus _permissionGranted;
+    //bool _serviceEnabled;
+    //lc.PermissionStatus _permissionGranted;
     lc.LocationData _locationData;
 
-    _serviceEnabled = await location.serviceEnabled();
+/*    _serviceEnabled = await location.serviceEnabled();
     if (!_serviceEnabled) {
       _serviceEnabled = await location.requestService();
       if (!_serviceEnabled) {
@@ -199,7 +199,7 @@ class _MyAppState extends State<MyApp> with AfterLayoutMixin<MyApp> {
         return;
       }
     }
-
+*/
     _locationData = await location.getLocation();
     print(_locationData);
   }
