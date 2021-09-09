@@ -18,6 +18,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with AfterLayoutMixin<MyApp> {
+//class _MyAppState extends State<MyApp> {
   bool _hasPermissions = false;
 
 //coordinates of lysaya gora 22
@@ -178,13 +179,13 @@ class _MyAppState extends State<MyApp> with AfterLayoutMixin<MyApp> {
   @override
   void afterFirstLayout(BuildContext context) async {
     // TODO: implement afterFirstLayout
-    lc.Location location = new lc.Location();
+    //lc.Location location = lc.Location();
 
     //bool _serviceEnabled;
     //lc.PermissionStatus _permissionGranted;
-    lc.LocationData _locationData;
+    //lc.LocationData _locationData;
 
-/*    _serviceEnabled = await location.serviceEnabled();
+    /*_serviceEnabled = await location.serviceEnabled();
     if (!_serviceEnabled) {
       _serviceEnabled = await location.requestService();
       if (!_serviceEnabled) {
@@ -200,7 +201,10 @@ class _MyAppState extends State<MyApp> with AfterLayoutMixin<MyApp> {
       }
     }
 */
-    _locationData = await location.getLocation();
-    print(_locationData);
+    //_locationData = await location.getLocation(); //this or line below
+    //_locationData = await lc.Location().getLocation();
+    //print(_locationData);
+    lc.LocationData currentLocation;
+    currentLocation = await lc.Location().getLocation();
   }
 }
