@@ -1,5 +1,5 @@
 import 'dart:math' as math;
-
+import 'dart:ui';
 import 'package:after_layout/after_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compass/flutter_compass.dart';
@@ -18,14 +18,13 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with AfterLayoutMixin<MyApp> {
-//class _MyAppState extends State<MyApp> {
   bool _hasPermissions = false;
 
-//coordinates of lysaya gora 22
-  Offset lg22 = Offset(43.581352, 39.738845);
+//coordinates of lysaya gora 22 for exaple
+  Offset? lg22 = Offset(43.581352, 39.738845);
+  late Tangent tangent;
 
-  //CompassEvent? _lastRead;
-  //DateTime? _lastReadAt;
+  double get tangentAngle => tangent.angle;
 
   @override
   void initState() {
@@ -57,45 +56,6 @@ class _MyAppState extends State<MyApp> with AfterLayoutMixin<MyApp> {
       ),
     );
   }
-
-  /*Widget _buildManualReader() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Row(
-        children: <Widget>[
-          ElevatedButton(
-            child: Text('Read Value'),
-            onPressed: () async {
-              final CompassEvent tmp = await FlutterCompass.events!.first;
-
-              setState(() {
-                _lastRead = tmp;
-                _lastReadAt = DateTime.now();
-              });
-            },
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    '$_lastRead',
-                    style: Theme.of(context).textTheme.caption,
-                  ),
-                  Text(
-                    '$_lastReadAt',
-                    style: Theme.of(context).textTheme.caption,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }*/
 
   Widget _buildCompass() {
     return StreamBuilder<CompassEvent>(
@@ -178,33 +138,12 @@ class _MyAppState extends State<MyApp> with AfterLayoutMixin<MyApp> {
 
   @override
   void afterFirstLayout(BuildContext context) async {
-    // TODO: implement afterFirstLayout
-    //lc.Location location = lc.Location();
-
-    //bool _serviceEnabled;
-    //lc.PermissionStatus _permissionGranted;
-    //lc.LocationData _locationData;
-
-    /*_serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
-        return;
-      }
-    }
-
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == lc.PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != lc.PermissionStatus.granted) {
-        return;
-      }
-    }
-*/
-    //_locationData = await location.getLocation(); //this or line below
-    //_locationData = await lc.Location().getLocation();
-    //print(_locationData);
-    lc.LocationData currentLocation;
-    currentLocation = await lc.Location().getLocation();
+    lc.Location().getLocation().then((locationData) {
+      setState(() {
+        tangent = Tangent(Offset.zero,
+            lg22! - Offset(locationData.latitude!, locationData.longitude!));
+        print(tangentAngle);
+      });
+    });
   }
 }
