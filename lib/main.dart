@@ -1,9 +1,11 @@
 import 'dart:math' as math;
 import 'dart:ui';
+
 import 'package:after_layout/after_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:permission_handler/permission_handler.dart' as ph;
+
 import 'package:location/location.dart' as lc;
 
 void main() => runApp(MyApp());
@@ -18,6 +20,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with AfterLayoutMixin<MyApp> {
+  ///class _MyAppState extends State<MyApp> {
   bool _hasPermissions = false;
 
 //coordinates of lysaya gora 22 for exaple
@@ -81,9 +84,11 @@ class _MyAppState extends State<MyApp> with AfterLayoutMixin<MyApp> {
           );
 
         return Material(
-          //shape: CircleBorder(),
+          shape: CircleBorder(),
           clipBehavior: Clip.antiAlias,
-          //elevation: 4.0,
+          elevation: 4.0,
+          color: Colors.pink,
+          shadowColor: Colors.pink,
           child: Container(
             //padding: EdgeInsets.all(16.0),
             alignment: Alignment.center,
@@ -138,6 +143,10 @@ class _MyAppState extends State<MyApp> with AfterLayoutMixin<MyApp> {
 
   @override
   void afterFirstLayout(BuildContext context) async {
+    ///lc.LocationData currentLocation;
+    ///currentLocation = await lc.Location().getLocation();
+    ///print(currentLocation);
+
     lc.Location().getLocation().then((locationData) {
       setState(() {
         tangent = Tangent(Offset.zero,
