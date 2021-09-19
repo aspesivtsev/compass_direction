@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:after_layout/after_layout.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:permission_handler/permission_handler.dart' as ph;
 
@@ -24,10 +25,13 @@ class _MyAppState extends State<MyApp> with AfterLayoutMixin<MyApp> {
   bool _hasPermissions = false;
 
 //coordinates of lysaya gora 22 for exaple
-  Offset? lg22 = Offset(43.581352, 39.738845);
-  late Tangent tangent;
+  Offset lg22 = Offset(43.581352, 39.738845);
+  Tangent? tangent;
 
-  double get tangentAngle => tangent.angle;
+  ///double get tangentAngle => tangent!.angle;
+  ///double get tangentAngle => (tangent!.angle) - math.pi / 2;
+  double get tangentAngle => (tangent?.angle ?? math.pi / 2) - math.pi / 2;
+  //final imageAngle = math.pi / 4.5;
 
   @override
   void initState() {
@@ -61,47 +65,46 @@ class _MyAppState extends State<MyApp> with AfterLayoutMixin<MyApp> {
   }
 
   Widget _buildCompass() {
-    return StreamBuilder<CompassEvent>(
-      stream: FlutterCompass.events,
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Text('Error reading heading: ${snapshot.error}');
-        }
+    return Material(
+      shape: CircleBorder(),
+      clipBehavior: Clip.antiAlias,
+      elevation: 4.0,
+      color: Colors.pink,
+      shadowColor: Colors.pink,
+      child: Container(
+        //padding: EdgeInsets.all(16.0),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+        ),
+        child: StreamBuilder<CompassEvent>(
+            stream: FlutterCompass.events,
+            builder: (context, snapshot) {
+              ///double? direction = snapshot.data!.heading;
+              double angle = 0.3;
 
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        }
+              ///= ((snapshot.data!.heading!) * (math.pi / 180) * -1);
+              if (snapshot.hasError) {
+                return Text('Error reading heading: ${snapshot.error}');
+              }
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
 
-        double? direction = snapshot.data!.heading;
+              if (snapshot.connectionState == ConnectionState.active) {
+                angle = ((snapshot.data!.heading!) * (math.pi / 180) * -1);
+              }
 
-        // if direction is null, then device does not support this sensor
-        // show error message
-        if (direction == null)
-          return Center(
-            child: Text("Device does not have sensors !"),
-          );
+              return Transform.rotate(
+                angle: (angle - tangentAngle),
 
-        return Material(
-          shape: CircleBorder(),
-          clipBehavior: Clip.antiAlias,
-          elevation: 4.0,
-          color: Colors.pink,
-          shadowColor: Colors.pink,
-          child: Container(
-            //padding: EdgeInsets.all(16.0),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-            ),
-            child: Transform.rotate(
-              angle: (direction * (math.pi / 180) * -1),
-              child: Image.asset('assets/compass.jpg'),
-            ),
-          ),
-        );
-      },
+                ///angle: (direction! * (math.pi / 180) * -1) - tangentAngle,
+                child: Image.asset('assets/compass.jpg'),
+              );
+            }),
+      ),
     );
   }
 
@@ -149,9 +152,11 @@ class _MyAppState extends State<MyApp> with AfterLayoutMixin<MyApp> {
 
     lc.Location().getLocation().then((locationData) {
       setState(() {
-        tangent = Tangent(Offset.zero,
-            lg22! - Offset(locationData.latitude!, locationData.longitude!));
-        print(tangentAngle);
+        Offset myLocation =
+            Offset(locationData.latitude!, locationData.longitude!);
+        tangent = Tangent(Offset.zero, lg22 - myLocation);
+        print("myLocation =" + myLocation.toString());
+        print("tangentAngle =" + tangentAngle.toString());
       });
     });
   }
